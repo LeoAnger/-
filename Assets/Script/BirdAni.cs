@@ -59,7 +59,7 @@ public class BirdAni : MonoBehaviour
             yield return new WaitForSeconds(10.0f);
             isflying = false;
             
-            Debug.Log("work");
+            //Debug.Log("work");
         }
     }
 }
