@@ -6,7 +6,6 @@ public class BirdAni : MonoBehaviour
 {
     public float speed;
     private bool isflying = false;
-    private Transform this_Transform;    // 动态值    失败：实时的指针索引
     private Vector2 this_Vector2;        // 静态值    成功
     
     public Transform movePos;
@@ -14,7 +13,6 @@ public class BirdAni : MonoBehaviour
 
     void Awake()
     {
-        this_Transform = transform;
         this_Vector2 = transform.position;
         // print("v2:" + this_Vector2);
     }
