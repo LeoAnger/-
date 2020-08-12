@@ -8,14 +8,14 @@ public class Player2 : MonoBehaviour
     public Animator player2Animator;
     AnimatorStateInfo animatorInfo;
     public Rigidbody2D rb;
+    public Collider2D coll;
+    public LayerMask ground;
     
-    public float speed;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public float speed;        // 移动速度
+    public float jumpforce;    // 跳跃力
+    float horizonalmentmove;    // 范围： [-1， 1]    类型：float    用途：速度
+    float facedirection;        // 范围： -1， 0， 1  类型：int      用途：方向
+    private int Doublejump = 0;
 
     // Update is called once per frame
     void Update()
@@ -24,8 +24,69 @@ public class Player2 : MonoBehaviour
 
         Attack();
         Movement();     // left, right
-        
-        
+        Jump();
+        ChangeAnimState();
+
+
+    }
+
+    private void ChangeAnimState()
+    {
+        if (player2Animator.GetBool("jumping"))
+        {
+            // jump --> fall
+            if (rb.velocity.y < 0)
+            {
+                player2Animator.SetBool("jumping", false);
+                player2Animator.SetBool("falling", true);
+            }
+        }
+
+        if (player2Animator.GetBool("falling"))
+        {
+            if (coll.IsTouchingLayers(ground))
+            {
+                print("落地地面.." + Doublejump);
+                Doublejump = 0;
+                if (player2Animator.GetFloat("running") > 0.1)
+                {    // 移动
+                    player2Animator.SetBool("falling", false);
+                }
+                else
+                {    // 站立
+                    player2Animator.SetBool("falling", false);
+                    player2Animator.SetBool("idle", true);
+                }
+            }
+        }
+    }
+
+    private void Jump()
+    {
+        if(Input.GetKeyDown(KeyCode.K))
+        {
+            // 不可用状态
+            if (player2Animator.GetBool("isPunch"))
+            {
+                return;
+            }
+            if (player2Animator.GetBool("jumping") || player2Animator.GetBool("falling"))
+            {
+                if (Doublejump >= 2)
+                {
+                    return;
+                }
+            }
+            
+            // 可用状态
+            rb.velocity = new Vector2(rb.velocity.x, jumpforce);
+            player2Animator.SetBool("jumping", true);
+            if (player2Animator.GetBool("idle"))
+            {
+                player2Animator.SetBool("idle", false);
+            }
+            Doublejump++;
+        }
     }
 
     private void Attack()
@@ -36,7 +97,14 @@ public class Player2 : MonoBehaviour
             Debug.Log("攻击结束");
             player2Animator.SetBool("isPunch", false);
         }*/
+        // 不可用状态
+        if (player2Animator.GetBool("jumping") || player2Animator.GetBool("falling")
+            || player2Animator.GetBool("isPunch"))
+        {
+            return;
+        }
         
+        // 可用状态
         if(Input.GetKeyDown(KeyCode.J))
         {
             /*
@@ -45,19 +113,25 @@ public class Player2 : MonoBehaviour
              * 3.攻击结束...
              */
             print("J...攻击...");
-            if (!player2Animator.GetBool("isPunch") && animatorInfo.IsName("Idle"))
+            if (animatorInfo.IsName("Idle"))
             {
                 print("Idle --> Attack...");
                 player2Animator.SetBool("isPunch", true);
-                return;
+                player2Animator.SetBool("idle", false);
             }
         }
     }
 
     private void Movement()
     {
-        float horizonalmentmove = Input.GetAxis("Horizontal");    // 范围： [-1， 1]    类型：float
-        float facedirection = Input.GetAxisRaw("Horizontal");     // 范围： -1， 0， 1  类型：int
+        // 不可用状态
+        if (player2Animator.GetBool("isPunch"))
+        {
+            return;
+        }
+        // 可用状态
+        horizonalmentmove = Input.GetAxis("Horizontal");    // 范围： [-1， 1]    类型：float    用途：速度
+        facedirection = Input.GetAxisRaw("Horizontal");     // 范围： -1， 0， 1  类型：int      用途：方向
         if(horizonalmentmove != 0)
         {
             // 有位移
@@ -77,6 +151,7 @@ public class Player2 : MonoBehaviour
     {
         Debug.Log("攻击结束");
         player2Animator.SetBool("isPunch", false);
+        player2Animator.SetBool("idle", true);
         /*
          * 日期：2020年8月10日
          * 问题：攻击动画过渡到Idle时，位置不同步..

@@ -1148,7 +1148,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player2Animator: {fileID: 1140834644}
   rb: {fileID: 1140834648}
+  coll: {fileID: 1140834649}
+  ground:
+    serializedVersion: 2
+    m_Bits: 256
   speed: 10
+  jumpforce: 30
 --- !u!50 &1140834648
 Rigidbody2D:
   serializedVersion: 4
