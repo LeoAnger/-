@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Assets.Script;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -10,7 +11,10 @@ public class Player2 : MonoBehaviour
     public Rigidbody2D rb;
     public Collider2D coll;
     public LayerMask ground;
-    
+    public GameObject Attack_Punch;
+
+    public static State Player2State = State.Normal;
+    public static PlayerAttackState PlayerAttackState = PlayerAttackState.No;
     public float speed;        // 移动速度
     public float jumpforce;    // 跳跃力
     float horizonalmentmove;    // 范围： [-1， 1]    类型：float    用途：速度
@@ -25,9 +29,12 @@ public class Player2 : MonoBehaviour
         Attack();
         Movement();     // left, right
         Jump();
+        
+    }
+
+    void FixedUpdate()
+    {
         ChangeAnimState();
-
-
     }
 
     private void ChangeAnimState()
@@ -85,6 +92,7 @@ public class Player2 : MonoBehaviour
             {
                 player2Animator.SetBool("idle", false);
             }
+            Player2State = State.Jump;
             Doublejump++;
         }
     }
@@ -116,6 +124,7 @@ public class Player2 : MonoBehaviour
             if (animatorInfo.IsName("Idle"))
             {
                 print("Idle --> Attack...");
+                // 1.播放动画
                 player2Animator.SetBool("isPunch", true);
                 player2Animator.SetBool("idle", false);
             }
@@ -147,16 +156,58 @@ public class Player2 : MonoBehaviour
     }
     
     // 动画事件
-    void AnimStop_Punch()
+    void AnimState_Punch_Start()
     {
-        Debug.Log("攻击结束");
-        player2Animator.SetBool("isPunch", false);
-        player2Animator.SetBool("idle", true);
+        // player2Animator.SetBool("isPunch", false);
+        // player2Animator.SetBool("idle", true);
+        print("State.Punch...");
+        Player2State = State.Punch;
         /*
          * 日期：2020年8月10日
          * 问题：攻击动画过渡到Idle时，位置不同步..
          * 解决：ps调整图片解决.
          * 原则：美术可以解决的，尽量不用程序.
        */
+    }
+
+    void AnimState_Punch_Stop()
+    {
+        print("攻击结束/nState.Normal...");
+        Player2State = State.Normal;
+        global::Attack.PunchIsEnable = false;
+    }
+
+    void AnimEvent_Punch_Start()
+    {
+        print("AnimEvent_Punch_Start");
+        PlayerAttackState = PlayerAttackState.Punch;
+        // 如果攻击已经命中，则
+        print("TriggerState.Punch:" + TriggerState.Punch);
+        if (TriggerState.Punch)
+        {
+            if (global::Attack.PunchIsEnable) punch();
+        }
+    }
+    
+    void AnimEvent_Punch_Stop()
+    {
+        print("AnimEvent_Punch_Stop");
+        PlayerAttackState = PlayerAttackState.No;
+        global::Attack.PunchIsEnable = false;
+        player2Animator.SetBool("isPunch", false);
+        player2Animator.SetBool("idle", true);
+    }
+    
+    private void punch()
+    {
+        print("攻击命中Punch...");
+        if (Player2.PlayerAttackState == PlayerAttackState.Punch)
+        {
+            print("攻击命中Punch...");
+        }
+        else
+        {
+            print("攻击未命中...");
+        }
     }
 }
