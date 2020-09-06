@@ -24,4 +24,9 @@ public class Attack : MonoBehaviour
             
         }
     }
+
+    public void attack()
+    {
+        this.gameObject.transform.position = new Vector2(Player2.transform.position.x - 2.76f, Player2.transform.position.y - 1.36f);
+    }
 }

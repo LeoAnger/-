@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Assets.Script;
 using UnityEngine;
@@ -106,8 +107,9 @@ public class Player2 : MonoBehaviour
             player2Animator.SetBool("isPunch", false);
         }*/
         // 不可用状态
-        if (player2Animator.GetBool("jumping") || player2Animator.GetBool("falling")
-            || player2Animator.GetBool("isPunch"))
+        if (player2Animator.GetBool("jumping") || 
+            player2Animator.GetBool("falling") || 
+            player2Animator.GetBool("isPunch"))
         {
             return;
         }
@@ -127,6 +129,10 @@ public class Player2 : MonoBehaviour
                 // 1.播放动画
                 player2Animator.SetBool("isPunch", true);
                 player2Animator.SetBool("idle", false);
+                // 2.重置碰撞器
+                Attack_Punch.gameObject.transform.position = new Vector2(this.transform.position.x - 2.76f, 
+                    this.transform.position.y - 1.36f);
+                
             }
         }
     }
